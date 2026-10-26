@@ -638,6 +638,16 @@ kit.score(function (S, T) {
         default: { env(g, at, 0.003, 0.3 * a, 0, 0.3); osc('sine', 880, at, at + 0.5, g); }
       }
     }
+    let waiting = false;
+    function waitForGesture() {
+      if (waiting) return; waiting = true;
+      const go = () => {
+        ['pointerdown', 'keydown', 'touchstart'].forEach(n => document.removeEventListener(n, go, true));
+        waiting = false;
+        ctx.resume().then(() => { if (window.__adrcShouldPlay && window.__adrcShouldPlay()) start(window.__adrcNow()); });
+      };
+      ['pointerdown', 'keydown', 'touchstart'].forEach(n => document.addEventListener(n, go, true));
+    }
     function stop() {
       if (!bus) return; const b = bus; bus = null;
       try { b.master.gain.cancelScheduledValues(ctx.currentTime); b.master.gain.setTargetAtTime(0, ctx.currentTime, 0.03); } catch (e) {}
@@ -645,7 +655,7 @@ kit.score(function (S, T) {
     }
     function start(from) {
       if (!ensure()) return; stop();
-      if (ctx.state === 'suspended') ctx.resume();
+      if (ctx.state !== 'running') { ctx.resume().catch(() => {}); if (ctx.state !== 'running') { waitForGesture(); return; } }
       const now = ctx.currentTime + 0.05, m = SCORE.master;
       const master = ctx.createGain(), dry = ctx.createGain(), wet = ctx.createGain(), comp = ctx.createDynamicsCompressor();
       const lvl = Math.pow(10, (m.gain || 0) / 20);
@@ -707,7 +717,8 @@ kit.score(function (S, T) {
   function pause() { playing = false; Audio.stop(); setBtn(); }
   function toggle() { playing ? pause() : play(); }
   function seek(v) { t = Math.max(0, Math.min(DUR, +v)); last = performance.now(); draw(); if (playing && soundOn) { clearTimeout(seekT); Audio.stop(); seekT = setTimeout(() => { if (playing && soundOn) Audio.start(t); }, 120); } setBtn(); }
-  let soundOn = false, seekT = 0;
+  let soundOn = true, seekT = 0;
+  window.__adrcShouldPlay = () => playing && soundOn; window.__adrcNow = () => t;
   const soundBtn = document.getElementById('sound');
   const ICON_ON = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7h3l5-4v14l-5-4H3z"/><path d="M13.5 6.5a5 5 0 0 1 0 7M15.5 4.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
   const ICON_OFF = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7h3l5-4v14l-5-4H3z"/><path d="M13.5 7.5l5 5M18.5 7.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
