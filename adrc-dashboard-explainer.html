@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADRC Executive Dashboard, FY2027: explainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=DM+Mono&family=Source+Sans+3:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root { --ink:#1C1304; --navy:#04132E; --gold:#C8A04A; --paper:#F6F4EF; --line:#d9d4c8; }
+* { box-sizing:border-box }
+body { margin:0; background:var(--paper); color:var(--ink); font-family:"Source Sans 3", system-ui, sans-serif }
+.adrc-explainer { max-width:1200px; margin:0 auto; padding:24px 16px 32px }
+.adrc-frame { position:relative; width:100%; aspect-ratio:16/9; overflow:hidden; border-radius:10px; background:var(--paper); box-shadow:0 1px 0 var(--line), 0 10px 30px rgba(0,0,0,.08); cursor:pointer }
+#stage { position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:0 0; overflow:hidden;
+  --display:"Barlow Condensed", "Arial Narrow", sans-serif; --sans:"Source Sans 3", system-ui, sans-serif; --mono:"DM Mono", ui-monospace, monospace }
+#stage .scene { position:absolute; inset:0; visibility:hidden }
+#stage .scene.on { visibility:visible }
+.adrc-bar { display:flex; align-items:center; gap:14px; margin-top:12px }
+.adrc-btn { flex:none; width:44px; height:44px; border-radius:50%; border:0; background:var(--navy); color:var(--paper); display:grid; place-items:center; cursor:pointer }
+.adrc-sound { background:transparent; color:var(--navy); border:2px solid var(--navy) }
+.adrc-sound[aria-pressed="true"] { background:var(--navy); color:var(--paper) }
+.adrc-btn svg { width:18px; height:18px; fill:currentColor }
+.adrc-btn:focus-visible, .adrc-range:focus-visible { outline:3px solid var(--gold); outline-offset:3px }
+.adrc-track { position:relative; flex:1; height:44px; display:flex; align-items:center }
+.adrc-range { width:100%; margin:0; accent-color:var(--navy); cursor:pointer }
+.adrc-time { flex:none; font-family:"DM Mono", ui-monospace, monospace; font-size:14px; font-variant-numeric:tabular-nums; min-width:88px; text-align:right }
+.adrc-chapters { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 0; padding:0; list-style:none }
+.adrc-chapters button { border:1px solid var(--line); background:transparent; color:var(--ink); border-radius:999px; padding:6px 12px; font:inherit; font-size:14px; cursor:pointer }
+.adrc-chapters button[aria-current="true"] { background:var(--navy); border-color:var(--navy); color:var(--paper) }
+.adrc-chapters button:focus-visible { outline:3px solid var(--gold); outline-offset:2px }
+.adrc-transcript { margin-top:18px; font-size:16px; line-height:1.5; max-width:72ch }
+.adrc-transcript summary { cursor:pointer; font-weight:700 }
+.adrc-transcript ol { padding-left:1.2em }
+</style>
+<style id="film-css">
+#stage { --ground:#F6F4EF; --main:#04132E; --second:#1C1304; --accent:#C8A04A; color:var(--second); font-family:var(--sans, system-ui, sans-serif) }
+.ground { position:absolute; inset:0; background:var(--ground) }
+.words { position:absolute; margin:0; display:flex; flex-direction:column; gap:20px } .words > * { margin:0 }
+.line { font-family:var(--display, var(--sans, system-ui, sans-serif)); font-size:120px; line-height:.98; font-weight:700; color:var(--main); letter-spacing:-.005em }
+.sub { font-size:40px; line-height:1.3; font-weight:400; color:color-mix(in srgb, var(--second) 72%, var(--ground)) }
+.tag { font-family:var(--mono, ui-monospace, monospace); font-size:26px; letter-spacing:.14em; text-transform:uppercase; color:color-mix(in srgb, var(--accent) 70%, var(--second)) }
+.fig { font-family:var(--mono, ui-monospace, monospace); font-variant-numeric:tabular-nums; font-weight:400; color:var(--main) }
+.big { font-family:var(--display, var(--sans, system-ui, sans-serif)); font-weight:700; font-size:220px; line-height:.9; color:var(--main) }
+.lab { font-family:var(--mono, ui-monospace, monospace); font-size:24px; letter-spacing:.1em; text-transform:uppercase; color:color-mix(in srgb, var(--second) 62%, var(--ground)) }
+.rule { position:absolute; height:6px; background:var(--accent); border-radius:3px; transform-origin:0 50% }
+.bar { position:absolute; bottom:0; background:var(--main); border-radius:6px 6px 0 0; transform-origin:50% 100% }
+.bar.now { background:var(--accent) }
+.std { position:absolute; height:0; border-top:4px dashed color-mix(in srgb, var(--second) 75%, var(--ground)); transform-origin:0 50% }
+.cal { position:absolute }
+.cal-sheet { position:absolute; inset:0; background:color-mix(in srgb, var(--ground) 90%, var(--second)); border-radius:.08em }
+.cal-page { position:absolute; inset:0; overflow:hidden; background:var(--ground); border:3px solid color-mix(in srgb, var(--second) 16%, var(--ground)); border-radius:.08em; box-shadow:0 12px 30px rgba(0,0,0,.12); display:flex; flex-direction:column; align-items:center; transform-origin:50% 0 }
+.cal-head { width:100%; height:24%; background:var(--main); color:var(--ground); font-family:var(--mono, ui-monospace, monospace); font-size:.42em; letter-spacing:.2em; display:flex; align-items:center; justify-content:center }
+.cal-num { font-family:var(--display, var(--sans, system-ui, sans-serif)); font-weight:700; font-size:1.9em; line-height:1; margin-top:.12em; color:var(--main); font-variant-numeric:tabular-nums }
+.cal-day { font-family:var(--mono, ui-monospace, monospace); font-size:.3em; letter-spacing:.2em; color:color-mix(in srgb, var(--second) 62%, var(--ground)) }
+.cal-shade { position:absolute; inset:0; background:var(--second); opacity:0; pointer-events:none }
+.cal-ring { position:absolute; top:-.12em; width:.1em; height:.3em; border-radius:.05em; background:color-mix(in srgb, var(--second) 70%, var(--ground)) }
+.col { position:absolute; left:150px; top:300px; width:540px } .col .line { font-size:100px }
+.gridl { position:absolute; height:2px; background:color-mix(in srgb, var(--second) 10%, var(--ground)); transform-origin:0 50% }
+.axis { position:absolute; height:3px; background:color-mix(in srgb, var(--second) 40%, var(--ground)); transform-origin:0 50% }
+.art { position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none }
+.trace { fill:none; stroke:var(--main); stroke-width:8; stroke-linecap:round; stroke-linejoin:round }
+.dot { fill:var(--ground); stroke:var(--main); stroke-width:6 } .dot.now { stroke:var(--accent); fill:var(--accent) }
+.leader { fill:none; stroke:var(--accent); stroke-width:4; stroke-linecap:round }
+.callout { position:absolute; display:flex; flex-direction:column; gap:8px; padding:20px 26px; background:var(--main); color:var(--ground); border-radius:12px; box-shadow:0 10px 24px rgba(0,0,0,.18); transform-origin:50% 100% }
+.callout-k { font-family:var(--mono, ui-monospace, monospace); font-size:22px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent) }
+.callout-v { font-family:var(--display, var(--sans, system-ui, sans-serif)); font-weight:700; font-size:60px; line-height:1 }
+.val { position:absolute; font-family:var(--mono, ui-monospace, monospace); font-variant-numeric:tabular-nums; font-size:36px; color:var(--main); text-align:center }
+</style>
+</head>
+<body>
+<figure class="adrc-explainer" aria-labelledby="adrc-cap">
+  <div class="adrc-frame" id="frame" role="img" aria-label="Animated explainer of the ADRC Executive Dashboard, FY2027. Full text below.">
+    <div id="stage"></div>
+  </div>
+  <div class="adrc-bar">
+    <button class="adrc-btn" id="play" type="button" aria-label="Play"></button>
+    <div class="adrc-track"><input class="adrc-range" id="scrub" type="range" min="0" max="30" step="0.01" value="0" aria-label="Seek"></div>
+    <span class="adrc-time" id="time">0:00 / 0:30</span>
+    <button class="adrc-btn adrc-sound" id="sound" type="button" aria-pressed="false" aria-label="Turn sound on"></button>
+  </div>
+  <ul class="adrc-chapters" id="chapters" aria-label="Chapters"></ul>
+  <figcaption id="adrc-cap">
+    <details class="adrc-transcript">
+      <summary>Read the explainer as text</summary>
+      <ol>
+        <li><strong>ADRC Executive Dashboard, FY2027.</strong> Monthly performance on responsiveness, demand and capacity.</li>
+        <li><strong>Days to return a call.</strong> Average business days to return a call: 9 in July, 9 in August, 6 in September, against the DAS standard of 2 days. Lower is better.</li>
+        <li><strong>Calls in the queue.</strong> Callbacks still in the list at month-end: 512 in July, 386 in August, 1,021 on September 30. Lower is better.</li>
+        <li><strong>Interactions handled.</strong> Total contacts: 7,765 in July, 7,689 in August, 6,825 in September. September: 4,612 serviced interactions, 1,916 web intakes, 149 information emails, 148 APS, MAC and walk-ins.</li>
+        <li><strong>Capacity and staffing.</strong> Calls over capacity per business day: 127 in July, 178 in August, 151 in September. FTEs on the phone queue: 7.4, 7.4 and 8.07.</li>
+        <li><strong>One monthly view for leadership.</strong> Atlanta Regional Commission, Aging &amp; Independence Services.</li>
+      </ol>
+    </details>
+  </figcaption>
+</figure>
+<script>
+(function () {
+  'use strict';
+  const clamp01 = x => x < 0 ? 0 : x > 1 ? 1 : x;
+  const K = {
+    W: 1920, H: 1080,
+    clamp01, seg: (t, a, b) => clamp01((t - a) / (b - a)), lerp: (a, b, p) => a + (b - a) * p,
+    eo: x => 1 - Math.pow(1 - clamp01(x), 3), ei: x => Math.pow(clamp01(x), 3),
+    eio: x => { x = clamp01(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; },
+    eob: (x, s = 1.4) => { x = clamp01(x) - 1; return 1 + (s + 1) * x * x * x + s * x * x; },
+    breathe: (t, amt = .012, period = 3.2) => 1 + amt * Math.sin(2 * Math.PI * t / period),
+    h(html) { const tp = document.createElement('template'); tp.innerHTML = html.trim(); return tp.content.firstElementChild; },
+  };
+  K.TextFx = {
+    fadeFromRight(el, t, t0, o) {
+      o = o || {}; const st = o.stagger ?? .11, dur = o.dur ?? .5, dx = o.dx ?? 26;
+      if (!el._w) {
+        const words = el.textContent.split(' '); el.textContent = '';
+        el._w = words.map((w, i) => { const s = document.createElement('span'); s.textContent = w; s.style.display = 'inline-block'; el.append(s); if (i < words.length - 1) el.append(' '); return s; });
+      }
+      el._w.forEach((s, i) => { const p = K.eo(K.seg(t, t0 + i * st, t0 + i * st + dur)); s.style.opacity = p; s.style.transform = 'translateX(' + K.lerp(dx, 0, p) + 'px)'; });
+      return t0 + (el._w.length - 1) * st + dur;
+    },
+  };
+  window.UI = {
+  days(from, to, skip) {
+    const out = [], M = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'], W = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    for (let d = new Date(from + 'T12:00:00Z'); d <= new Date(to + 'T12:00:00Z'); d = new Date(d.getTime() + 864e5)) {
+      const iso = d.toISOString().slice(0, 10), wd = d.getUTCDay();
+      if (wd === 0 || wd === 6 || (skip || []).includes(iso)) continue;
+      out.push({ head: M[d.getUTCMonth()] + ' 2026', num: String(d.getUTCDate()), day: W[wd] });
+    }
+    return out;
+  },
+  cal(kit, o) {
+    const fs = Math.round(o.h / 2.6);
+    const root = kit.h('<div class="cal" style="left:' + o.x + 'px;top:' + o.y + 'px;width:' + o.w + 'px;height:' + o.h + 'px;font-size:' + fs + 'px"></div>');
+    for (let i = 2; i >= 1; i--) root.append(kit.h('<div class="cal-sheet" style="transform:translate(' + i * 8 + 'px,' + i * 10 + 'px)"></div>'));
+    const mk = () => kit.h('<div class="cal-page"><div class="cal-head"></div><div class="cal-num"></div><div class="cal-day"></div><div class="cal-shade"></div></div>');
+    const under = mk(), top = mk();
+    root.append(under, top);
+    root.append(kit.h('<div class="cal-ring" style="left:28%"></div>'), kit.h('<div class="cal-ring" style="left:68%"></div>'));
+    const fill = (el, pg) => { if (el._pg === pg) return; el._pg = pg; el.children[0].textContent = pg.head; el.children[1].textContent = pg.num; el.children[2].textContent = pg.day; };
+    const pages = o.pages;
+    return {
+      el: root,
+      set(p) {
+        const n = pages.length - 1;
+        p = Math.max(0, Math.min(n, p));
+        const i = Math.min(n, Math.floor(p)), f = i >= n ? 0 : p - i;
+        fill(top, pages[i]); fill(under, pages[Math.min(n, i + 1)]);
+        const e = kit.eio(f);
+        top.style.transform = 'scaleY(' + (1 - e).toFixed(4) + ') skewX(' + (-6 * Math.sin(Math.PI * e)).toFixed(3) + 'deg)';
+        top.style.opacity = f > 0.97 ? 0 : 1;
+        top.children[3].style.opacity = (0.25 * e).toFixed(3);
+        under.children[3].style.opacity = (0.12 * (1 - e) * (f > 0 ? 1 : 0)).toFixed(3);
+      },
+    };
+  },
+  grid(kit, g, o) {
+    const out = [];
+    for (let i = 1; i <= o.n; i++) { const el = kit.h('<div class="gridl" style="left:' + o.x + 'px;width:' + o.w + 'px;top:' + (o.base - i * o.step) + 'px"></div>'); g.append(el); out.push(el.style); }
+    const ax = kit.h('<div class="axis" style="left:' + o.x + 'px;width:' + o.w + 'px;top:' + o.base + 'px"></div>'); g.append(ax); out.unshift(ax.style);
+    return (t, t0) => out.forEach((s, i) => { s.transform = 'scaleX(' + kit.eio(kit.seg(t, t0 + i * 0.06, t0 + 0.6 + i * 0.06)) + ')'; });
+  },
+  draw(path, p) {
+    if (!path._len) { path._len = path.getTotalLength(); path.style.strokeDasharray = path._len; }
+    path.style.strokeDashoffset = (path._len * (1 - p)).toFixed(2);
+  },
+  callout(kit, o) {
+    const el = kit.h('<div class="callout" style="left:' + o.x + 'px;top:' + o.y + 'px"><div class="callout-k">' + o.k + '</div><div class="callout-v">' + o.v + '</div></div>');
+    return { el, render(t, t0) { const a = kit.eob(kit.seg(t, t0, t0 + 0.45), 1.7); el.style.opacity = kit.eo(kit.seg(t, t0, t0 + 0.15)); el.style.transform = 'translateY(' + kit.lerp(24, 0, a) + 'px) scale(' + kit.lerp(0.9, 1, a) + ')'; } };
+  },
+};
+  const SCENES = [
+{id:"open",name:"Every month",dur:4,code:function(kit){const { seg, eo, eob, lerp, TextFx } = kit;
+kit.scene('open', {
+  init(kit) {
+    const g = kit.h('<div class="ground"></div>');
+    kit.stage.append(g);
+    this.words = kit.h('<div class="words" style="left:150px;top:300px;width:900px">' +
+      '<p class="tag open-tag">FY2027 · Monthly report</p>' +
+      '<h1 class="line">ADRC Executive Dashboard</h1>' +
+      '<p class="sub open-sub">Monthly performance on responsiveness, demand and capacity</p></div>');
+    g.append(this.words);
+    this.rule = kit.h('<div class="rule" style="left:150px;top:820px;width:220px"></div>');
+    this.words.append(this.rule); this.rule.style.position='static'; this.rule.style.flex='none';
+    this.chart = kit.h('<div style="position:absolute;inset:0"></div>');
+    g.append(this.chart);
+    this.grid = UI.grid(kit, this.chart, { x: 1150, w: 620, base: 800, step: 110, n: 4 });
+    const hs = [450, 450, 300];
+    this.bars = hs.map((h, i) => {
+      const b = kit.h('<div class="bar' + (i === 2 ? ' now' : '') + '" style="left:' + (1200 + i * 200) + 'px;width:130px;top:' + (800 - h) + 'px;height:' + h + 'px"></div>');
+      this.chart.append(b); return b.style;
+    });
+    this.chart.append(kit.h('<svg class="art" viewBox="0 0 1920 1080"><path class="trace open-trace" style="stroke:var(--accent)" d="M1265 560 C1350 610 1400 640 1465 630 S1600 420 1665 380"/></svg>'));
+    this.trace = this.chart.querySelector('.open-trace');
+    this.line = this.words.querySelector('.line');
+    this.tag = this.words.querySelector('.open-tag').style;
+    this.sub = this.words.querySelector('.open-sub').style;
+  },
+  render(t) {
+    this.tag.opacity = eo(seg(t, -0.6, -0.2));
+    TextFx.fadeFromRight(this.line, t, -0.55, { stagger: 0.1 });
+    this.sub.opacity = eo(seg(t, 0.7, 1.2));
+    this.sub.transform = 'translateX(' + lerp(24, 0, eo(seg(t, 0.7, 1.2))) + 'px)';
+    this.rule.style.transform = 'scaleX(' + eo(seg(t, 1.0, 1.6)) + ')';
+    this.grid(t, -0.4);
+    this.bars.forEach((s, i) => { s.transform = 'scaleY(' + eob(seg(t, 0.2 + i * 0.25, 0.85 + i * 0.25), 1.5) + ')'; });
+    UI.draw(this.trace, kit.eio(seg(t, 1.3, 2.4)));
+    this.chart.style.transform = 'scale(' + (1 + 0.006 * t) + ')';
+    this.chart.style.transformOrigin = '1460px 600px';
+    this.words.style.transform = 'translateY(' + (-2 * t) + 'px)';
+  },
+});
+}},
+{id:"wait",name:"Days to return",dur:5,code:function(kit){const { seg, eo, eio, eob, lerp, TextFx } = kit;
+kit.scene('wait', {
+  init(kit) {
+    const g = kit.h('<div class="ground"></div>');
+    kit.stage.append(g);
+    this.words = kit.h('<div class="words col"><p class="tag">01 · Days to return a call</p>' +
+      '<h2 class="line">How long callers wait</h2>' +
+      '<p class="sub wait-sub">Average business days to return a call, by month. Lower is better.</p></div>');
+    g.append(this.words);
+    this.sub = this.words.querySelector('.wait-sub').style;
+    this.grid = UI.grid(kit, g, { x: 780, w: 980, base: 880, step: 110, n: 4 });
+    const vals = [['JUL', 9], ['AUG', 9], ['SEP', 6]], k = 55;
+    this.bars = vals.map(([m, v], i) => {
+      const x = 840 + i * 270, h = v * k;
+      const b = kit.h('<div class="bar' + (i === 2 ? ' now' : '') + '" style="left:' + x + 'px;width:180px;top:' + (880 - h) + 'px;height:' + h + 'px"></div>');
+      const val = kit.h('<div class="val" style="left:' + x + 'px;width:180px;top:' + (880 - h - 54) + 'px">' + v + '</div>');
+      const lab = kit.h('<div class="lab" style="position:absolute;left:' + x + 'px;width:180px;text-align:center;top:905px">' + m + '</div>');
+      g.append(b, val, lab);
+      return { b: b.style, val: val.style, lab: lab.style };
+    });
+    this.std = kit.h('<div class="std" style="left:780px;width:980px;top:' + (880 - 2 * k) + 'px"></div>');
+    this.stdLab = kit.h('<div class="lab" style="position:absolute;left:1260px;width:500px;text-align:right;top:' + (880 - 2 * k - 40) + 'px;color:var(--second)">DAS standard · 2 days</div>');
+    g.append(this.std, this.stdLab);
+    g.append(kit.h('<svg class="art" viewBox="0 0 1920 1080"><path class="leader wait-lead" d="M1660 462 Q1620 520 1540 548"/></svg>'));
+    this.lead = g.querySelector('.wait-lead');
+    this.call = UI.callout(kit, { x: 1580, y: 320, k: 'September', v: '6 days' });
+    g.append(this.call.el);
+  },
+  render(t) {
+    TextFx.fadeFromRight(this.words.children[0], t, 0.0);
+    TextFx.fadeFromRight(this.words.children[1], t, 0.15);
+    this.sub.opacity = eo(seg(t, 0.9, 1.3));
+    this.grid(t, 0.3);
+    this.bars.forEach((o, i) => {
+      const t0 = 0.8 + i * 0.35;
+      o.b.transform = 'scaleY(' + eob(seg(t, t0, t0 + 0.65), 1.5) + ')';
+      o.val.opacity = eo(seg(t, t0 + 0.5, t0 + 0.8));
+      o.lab.opacity = eo(seg(t, 0.5, 0.9));
+    });
+    this.std.style.transform = 'scaleX(' + eio(seg(t, 2.2, 2.9)) + ')';
+    this.stdLab.style.opacity = eo(seg(t, 2.7, 3.1));
+    UI.draw(this.lead, eo(seg(t, 3.0, 3.35)));
+    this.call.render(t, 3.2);
+    this.words.style.transform = 'translateY(' + (-2 * t) + 'px)';
+  },
+});
+}},
+{id:"queue",name:"Calls in queue",dur:5,code:function(kit){const { seg, eo, eio, eob, lerp, TextFx } = kit;
+kit.scene('queue', {
+  init(kit) {
+    const g = kit.h('<div class="ground"></div>');
+    kit.stage.append(g);
+    this.words = kit.h('<div class="words col"><p class="tag">02 · Calls in the queue</p>' +
+      '<h2 class="line">Callers still waiting at month-end</h2>' +
+      '<p class="sub queue-sub">Callbacks left in the list when each month closed. Lower is better.</p></div>');
+    g.append(this.words);
+    this.sub = this.words.querySelector('.queue-sub').style;
+    this.grid = UI.grid(kit, g, { x: 780, w: 980, base: 880, step: 135, n: 4 });
+    const pts = [['JUL', 512, 930], ['AUG', 386, 1270], ['SEP', 1021, 1610]].map(([m, v, x]) => ({ m, v, x, y: Math.round(880 - v * 0.45) }));
+    const d = 'M' + pts.map(p => p.x + ' ' + p.y).join(' L');
+    g.append(kit.h('<svg class="art" viewBox="0 0 1920 1080"><path class="trace queue-trace" d="' + d + '"/>' +
+      pts.map((p, i) => '<circle class="dot' + (i === 2 ? ' now' : '') + ' queue-dot" cx="' + p.x + '" cy="' + p.y + '" r="14"/>').join('') +
+      '<path class="leader queue-lead" d="M1440 432 Q1520 400 1588 418"/></svg>'));
+    this.trace = g.querySelector('.queue-trace');
+    this.lead = g.querySelector('.queue-lead');
+    this.dots = [...g.querySelectorAll('.queue-dot')];
+    this.dots.forEach((c, i) => { c.style.transformOrigin = pts[i].x + 'px ' + pts[i].y + 'px'; });
+    this.labs = pts.map((p, i) => {
+      const lab = kit.h('<div class="lab" style="position:absolute;left:' + (p.x - 90) + 'px;width:180px;text-align:center;top:905px">' + p.m + '</div>');
+      g.append(lab);
+      let val = null;
+      if (i < 2) { val = kit.h('<div class="val" style="left:' + (p.x - 90) + 'px;width:180px;top:' + (p.y - 70) + 'px">' + p.v + '</div>'); g.append(val); }
+      return { lab: lab.style, val: val && val.style };
+    });
+    this.call = UI.callout(kit, { x: 1150, y: 300, k: 'September 30', v: '1,021 waiting' });
+    g.append(this.call.el);
+  },
+  render(t) {
+    TextFx.fadeFromRight(this.words.children[0], t, 0.0);
+    TextFx.fadeFromRight(this.words.children[1], t, 0.15);
+    this.sub.opacity = eo(seg(t, 0.9, 1.3));
+    this.grid(t, 0.3);
+    const p = eio(seg(t, 1.0, 2.6));
+    UI.draw(this.trace, p);
+    const hit = [0, 0.42, 1];
+    this.dots.forEach((c, i) => { const s = eob(seg(t, 1.0 + hit[i] * 1.6, 1.3 + hit[i] * 1.6), 1.8); c.style.transform = 'scale(' + s + ')'; });
+    this.labs.forEach((o, i) => { o.lab.opacity = eo(seg(t, 0.5, 0.9)); if (o.val) o.val.opacity = eo(seg(t, 1.2 + hit[i] * 1.6, 1.5 + hit[i] * 1.6)); });
+    UI.draw(this.lead, eo(seg(t, 2.8, 3.15)));
+    this.call.render(t, 3.0);
+    this.words.style.transform = 'translateY(' + (-2 * t) + 'px)';
+  },
+});
+}},
+{id:"work",name:"Work handled",dur:5,code:function(kit){const { seg, eo, eob, lerp, TextFx } = kit;
+kit.scene('work', {
+  init(kit) {
+    const g = kit.h('<div class="ground"></div>');
+    kit.stage.append(g);
+    const tones = ['var(--main)', 'color-mix(in srgb, var(--main) 68%, var(--ground))', 'color-mix(in srgb, var(--main) 42%, var(--ground))', 'var(--accent)'];
+    const types = ['Serviced interactions', 'Web intakes', 'Information emails', 'APS, MAC and walk-ins'];
+    const data = [['JUL', [5402, 2098, 170, 95]], ['AUG', [5516, 1888, 155, 130]], ['SEP', [4612, 1916, 149, 148]]];
+    const sep = data[2][1];
+    this.words = kit.h('<div class="words col" style="top:190px"><p class="tag">03 · Interactions handled</p>' +
+      '<h2 class="line">How much work got done</h2>' +
+      '<p class="sub work-sub" style="font-size:34px">Contacts by type each month. September:</p></div>');
+    g.append(this.words);
+    this.sub = this.words.querySelector('.work-sub').style;
+    this.legend = types.map((n, i) => {
+      const row = kit.h('<div style="position:absolute;left:150px;top:' + (690 + i * 56) + 'px;width:560px;display:flex;align-items:center;gap:16px">' +
+        '<div style="width:26px;height:26px;border-radius:5px;flex:none;background:' + tones[i] + '"></div>' +
+        '<div class="sub" style="font-size:32px;color:var(--second);flex:1">' + n + '</div>' +
+        '<div class="fig" style="font-size:32px">' + sep[i].toLocaleString('en-US') + '</div></div>');
+      g.append(row); return row.style;
+    });
+    this.grid = UI.grid(kit, g, { x: 780, w: 980, base: 880, step: 130, n: 4 });
+    const k = 0.065;
+    this.cols = data.map(([m, vs], i) => {
+      const x = 840 + i * 270, tot = vs.reduce((a, b) => a + b, 0), h = Math.round(tot * k);
+      let inner = '', y = h;
+      vs.forEach((v, j) => { const sh = Math.max(3, Math.round(v * k)); y -= sh; inner += '<div style="position:absolute;left:0;width:100%;top:' + y + 'px;height:' + sh + 'px;background:' + tones[j] + '"></div>'; });
+      const col = kit.h('<div style="position:absolute;left:' + x + 'px;top:' + (880 - h) + 'px;width:180px;height:' + h + 'px;overflow:hidden;border-radius:6px 6px 0 0;transform-origin:50% 100%">' + inner + '</div>');
+      const val = kit.h('<div class="val" style="left:' + (x - 20) + 'px;width:220px;top:' + (880 - h - 54) + 'px' + (i === 2 ? ';color:color-mix(in srgb, var(--accent) 60%, var(--second))' : '') + '">' + tot.toLocaleString('en-US') + '</div>');
+      const lab = kit.h('<div class="lab" style="position:absolute;left:' + x + 'px;width:180px;text-align:center;top:905px">' + m + '</div>');
+      g.append(col, val, lab);
+      return { c: col.style, val: val.style, lab: lab.style };
+    });
+    this.unit = kit.h('<div class="lab" style="position:absolute;left:780px;top:270px">Total contacts</div>');
+    g.append(this.unit);
+  },
+  render(t) {
+    TextFx.fadeFromRight(this.words.children[0], t, 0.0);
+    TextFx.fadeFromRight(this.words.children[1], t, 0.15);
+    this.sub.opacity = eo(seg(t, 0.9, 1.3));
+    this.grid(t, 0.3);
+    this.unit.style.opacity = eo(seg(t, 0.6, 1.0));
+    this.cols.forEach((o, i) => {
+      const t0 = 0.9 + i * 0.35;
+      o.c.transform = 'scaleY(' + eob(seg(t, t0, t0 + 0.65), 1.4) + ')';
+      o.val.opacity = eo(seg(t, t0 + 0.5, t0 + 0.8));
+      o.lab.opacity = eo(seg(t, 0.5, 0.9));
+    });
+    this.legend.forEach((s, i) => {
+      const t0 = 2.3 + i * 0.25;
+      s.opacity = eo(seg(t, t0, t0 + 0.35));
+      s.transform = 'translateX(' + lerp(26, 0, eo(seg(t, t0, t0 + 0.35))) + 'px)';
+    });
+    this.words.style.transform = 'translateY(' + (-2 * t) + 'px)';
+  },
+});
+}},
+{id:"capacity",name:"Capacity",dur:5,code:function(kit){const { seg, eo, eio, eob, lerp, TextFx } = kit;
+kit.scene('capacity', {
+  init(kit) {
+    const g = kit.h('<div class="ground"></div>');
+    kit.stage.append(g);
+    this.words = kit.h('<div class="words col" style="top:190px"><p class="tag">04 · Capacity and staffing</p>' +
+      '<h2 class="line">Can staff keep up?</h2>' +
+      '<p class="sub cap-sub" style="font-size:34px">Calls over capacity per business day, with FTEs on the phone queue. September:</p></div>');
+    g.append(this.words);
+    this.sub = this.words.querySelector('.cap-sub').style;
+    const rows = [['var(--accent)', 'Calls over capacity per day', '151'], ['var(--second)', 'FTEs on the phone queue', '8.07'], ['var(--main)', 'Business days', '21']];
+    this.legend = rows.map(([c, n, v], i) => {
+      const row = kit.h('<div style="position:absolute;left:150px;top:' + (690 + i * 56) + 'px;width:560px;display:flex;align-items:center;gap:16px">' +
+        '<div style="width:26px;height:' + (i === 1 ? 6 : 26) + 'px;border-radius:5px;flex:none;background:' + c + (i === 2 ? ';opacity:0' : '') + '"></div>' +
+        '<div class="sub" style="font-size:32px;color:var(--second);flex:1">' + n + '</div>' +
+        '<div class="fig" style="font-size:32px">' + v + '</div></div>');
+      g.append(row); return row.style;
+    });
+    this.grid = UI.grid(kit, g, { x: 780, w: 980, base: 880, step: 110, n: 4 });
+    const bars = [['JUL', 127, 22], ['AUG', 178, 21], ['SEP', 151, 21]], k = 2.2;
+    this.bars = bars.map(([m, v, bd], i) => {
+      const x = 840 + i * 270, h = Math.round(v * k);
+      const b = kit.h('<div class="bar' + (i === 2 ? ' now' : '') + '" style="left:' + x + 'px;width:180px;top:' + (880 - h) + 'px;height:' + h + 'px"></div>');
+      const val = kit.h('<div class="val" style="left:' + x + 'px;width:180px;top:' + (880 - h + 16) + 'px;color:var(--ground)">' + v + '</div>');
+      const lab = kit.h('<div class="lab" style="position:absolute;left:' + (x - 20) + 'px;width:220px;text-align:center;top:905px">' + m + ' · ' + bd + ' days</div>');
+      g.append(b, val, lab);
+      return { b: b.style, val: val.style, lab: lab.style };
+    });
+    const pts = [7.4, 7.4, 8.07].map((v, i) => ({ v, x: 930 + i * 270, y: Math.round(880 - v * 66) }));
+    const d = 'M' + pts.map(p => p.x + ' ' + p.y).join(' L');
+    g.append(kit.h('<svg class="art" viewBox="0 0 1920 1080"><path class="trace cap-trace" d="' + d + '" style="stroke:var(--second);stroke-width:6"/>' +
+      pts.map(p => '<circle class="dot cap-dot" cx="' + p.x + '" cy="' + p.y + '" r="12" style="stroke:var(--second)"/>').join('') + '</svg>'));
+    this.trace = g.querySelector('.cap-trace');
+    this.dots = [...g.querySelectorAll('.cap-dot')];
+    this.dots.forEach((c, i) => { c.style.transformOrigin = pts[i].x + 'px ' + pts[i].y + 'px'; });
+    this.fte = pts.map(p => { const el = kit.h('<div class="val" style="left:' + (p.x - 90) + 'px;width:180px;top:' + (p.y - 62) + 'px;color:var(--second)">' + p.v + '</div>'); g.append(el); return el.style; });
+    this.unitL = kit.h('<div class="lab" style="position:absolute;left:780px;top:232px">Calls over capacity / day</div>');
+    this.unitR = kit.h('<div class="lab" style="position:absolute;left:1360px;width:400px;text-align:right;top:232px;color:var(--second)">Line · FTEs</div>');
+    g.append(this.unitL, this.unitR);
+  },
+  render(t) {
+    TextFx.fadeFromRight(this.words.children[0], t, 0.0);
+    TextFx.fadeFromRight(this.words.children[1], t, 0.15);
+    this.sub.opacity = eo(seg(t, 0.9, 1.3));
+    this.grid(t, 0.3);
+    this.unitL.style.opacity = eo(seg(t, 0.6, 1.0));
+    this.bars.forEach((o, i) => {
+      const t0 = 0.8 + i * 0.3;
+      o.b.transform = 'scaleY(' + eob(seg(t, t0, t0 + 0.6), 1.5) + ')';
+      o.val.opacity = eo(seg(t, t0 + 0.5, t0 + 0.8));
+      o.lab.opacity = eo(seg(t, 0.5, 0.9));
+    });
+    this.unitR.style.opacity = eo(seg(t, 1.9, 2.2));
+    UI.draw(this.trace, eio(seg(t, 2.0, 3.0)));
+    const hit = [0, 0.5, 1];
+    this.dots.forEach((c, i) => { c.style.transform = 'scale(' + eob(seg(t, 2.0 + hit[i], 2.3 + hit[i]), 1.8) + ')'; });
+    this.fte.forEach((s, i) => { s.opacity = eo(seg(t, 2.15 + hit[i], 2.45 + hit[i])); });
+    this.legend.forEach((s, i) => {
+      const t0 = 3.0 + i * 0.22;
+      s.opacity = eo(seg(t, t0, t0 + 0.35));
+      s.transform = 'translateX(' + lerp(26, 0, eo(seg(t, t0, t0 + 0.35))) + 'px)';
+    });
+    this.words.style.transform = 'translateY(' + (-2 * t) + 'px)';
+  },
+});
+}},
+{id:"close",name:"One view",dur:6,code:function(kit){const { seg, eo, eio, eob, lerp, TextFx } = kit;
+kit.scene('close', {
+  init(kit) {
+    const g = kit.h('<div class="ground"></div>');
+    kit.stage.append(g);
+    const names = ['01 · Wait time', '02 · Queue', '03 · Work', '04 · Staffing'];
+    const art = [
+      '<rect class="close-b" x="50" y="60" width="50" height="140" style="fill:var(--main)"/><rect class="close-b" x="125" y="60" width="50" height="140" style="fill:var(--main)"/><rect class="close-b" x="200" y="107" width="50" height="93" style="fill:var(--accent)"/>',
+      '<path class="trace close-p" d="M50 140 L150 160 L250 70" style="stroke-width:7"/>',
+      '<rect class="close-b" x="110" y="155" width="80" height="45" style="fill:var(--main)"/><rect class="close-b" x="110" y="110" width="80" height="43" style="fill:color-mix(in srgb, var(--main) 65%, var(--ground))"/><rect class="close-b" x="110" y="65" width="80" height="43" style="fill:color-mix(in srgb, var(--main) 35%, var(--ground))"/>',
+      '<path class="trace close-p" d="M50 110 L150 110 L250 92" style="stroke-width:7"/>'];
+    this.cards = names.map((n, i) => {
+      const x = 270 + i * 360;
+      const c = kit.h('<div style="position:absolute;left:' + x + 'px;top:150px;width:300px;height:300px">' +
+        '<div style="position:absolute;inset:0;border-radius:16px;background:color-mix(in srgb, var(--ground) 94%, var(--second))"></div>' +
+        '<svg viewBox="0 0 300 240" style="position:absolute;left:0;top:0;width:300px;height:240px;overflow:visible"><rect x="40" y="200" width="220" height="3" style="fill:color-mix(in srgb, var(--second) 40%, var(--ground))"/>' + art[i] + '</svg>' +
+        '<div class="lab" style="position:absolute;left:0;width:300px;text-align:center;top:240px;color:var(--second)">' + n + '</div></div>');
+      g.append(c);
+      const bs = [...c.querySelectorAll('.close-b')];
+      bs.forEach(b => { b.style.transformBox = 'fill-box'; b.style.transformOrigin = '50% 100%'; });
+      return { s: c.style, bs, p: c.querySelector('.close-p') };
+    });
+    this.words = kit.h('<div class="words" style="left:150px;top:560px;width:1620px;align-items:center;text-align:center">' +
+      '<h2 class="line" style="font-size:132px">One monthly view for leadership</h2>' +
+      '<p class="sub close-sub">Atlanta Regional Commission · Aging &amp; Independence Services</p></div>');
+    g.append(this.words);
+    this.line = this.words.querySelector('.line');
+    this.sub = this.words.querySelector('.close-sub').style;
+    this.rule = kit.h('<div class="rule" style="left:850px;top:880px;width:220px;transform-origin:50% 50%"></div>');
+    this.words.append(this.rule); this.rule.style.position='static'; this.rule.style.flex='none';
+  },
+  render(t) {
+    this.cards.forEach((o, i) => {
+      const t0 = 0.05 + i * 0.22, a = eob(seg(t, t0, t0 + 0.5), 1.6);
+      o.s.opacity = eo(seg(t, t0, t0 + 0.2));
+      o.s.transform = 'translateY(' + (lerp(60, 0, a) - 3 * Math.sin(t * 1.6 + i * 0.9)) + 'px)';
+      o.bs.forEach((b, j) => { b.style.transform = 'scaleY(' + eob(seg(t, t0 + 0.3 + j * 0.12, t0 + 0.75 + j * 0.12), 1.4) + ')'; });
+      if (o.p) UI.draw(o.p, eio(seg(t, t0 + 0.3, t0 + 1.0)));
+    });
+    TextFx.fadeFromRight(this.line, t, 1.3, { stagger: 0.1 });
+    this.sub.opacity = eo(seg(t, 2.2, 2.7));
+    this.rule.style.transform = 'scaleX(' + eob(seg(t, 2.5, 3.0), 1.5) + ')';
+    this.words.style.transform = 'scale(' + (1 + 0.003 * t) + ')';
+  },
+});
+}}
+  ];
+  const stage = document.getElementById('stage');
+  let acc = 0;
+  const list = SCENES.map(s => {
+    const box = document.createElement('div'); box.className = 'scene'; stage.append(box);
+    const kit = Object.assign({}, K, { stage: box, dur: s.dur, start: acc });
+    let def = null; kit.scene = (id, d) => { def = d; };
+    s.code(kit);
+    const sc = { id: s.id, name: s.name, dur: s.dur, start: acc, box, kit, def, ready: false };
+    acc += s.dur; return sc;
+  });
+  const DUR = acc;
+  list.forEach(s => { s.def.init.call(s.def, s.kit); });
+  // ---- Score: recorded as events, synthesized with Web Audio ----
+  const SCORE = (function () {
+    const ev = [], prog = {}, T = {};
+    list.forEach(s => { T[s.id] = s.start; }); T.END = DUR;
+    let bpm = 120, t0 = 0, master = { gain: -6, fadeOut: 1 };
+    const B = () => 60 / bpm, bt = b => t0 + b * B();
+    const NM = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+    const midi = p => { if (typeof p === 'number') return p; const m = /^([A-G])([#b]?)(-?\d)$/.exec(p); return 12 * (+m[3] + 1) + NM[m[1]] + (m[2] === '#' ? 1 : m[2] === 'b' ? -1 : 0); };
+    const when = (o, defBeats) => o.t != null ? [o.t, o.dur ?? (defBeats || 1) * B()] : [bt(o.beat), (o.beats ?? defBeats ?? 1) * B()];
+    const S = {
+      tempo(b, o) { bpm = b; t0 = (o && o.t0) || 0; },
+      beat: n => bt(n), toBeat: t => (t - t0) / B(),
+      program(track, patch, o) { prog[track] = Object.assign({ patch, rev: 0.2, gain: 0, pan: 0 }, o || {}); },
+      note(track, p, o) { const [t, d] = when(o); ev.push({ k: 'n', track, m: midi(p), t, d, v: o.vel ?? 80 }); },
+      chord(track, ps, o) { ps.forEach((p, i) => S.note(track, p, Object.assign({}, o, o.t != null ? { t: o.t + i * (o.spread || 0) } : {}))); },
+      pattern(track, str, o) {
+        const step = o.step ?? 0.5, pitch = o.pitch || ['C4']; let hit = 0;
+        for (let r = 0; r < (o.repeat ?? 1); r++) for (let i = 0; i < str.length; i++) {
+          const c = str[i]; if (c === '.') continue;
+          const v = (o.vel ?? 80) * (c === 'X' ? 1.2 : c === 'o' ? 0.5 : 1);
+          ev.push({ k: 'n', track, m: midi(pitch[hit++ % pitch.length]), t: bt(o.from + (r * str.length + i) * step), d: (o.dur ?? step) * B(), v });
+        }
+      },
+      run(track, ps, o) { ps.forEach((p, i) => ev.push({ k: 'n', track, m: midi(p), t: o.t + i * o.step, d: o.step * 2, v: (o.vel ?? 70) + i * (o.cresc || 0) })); },
+      drum(name, o) { ev.push({ k: 'd', name, t: o.t != null ? o.t : bt(o.beat), v: o.vel ?? 80 }); },
+      drums(map, o) {
+        const step = o.step ?? 0.5;
+        for (const name in map) { const s = map[name]; for (let r = 0; r < (o.repeat ?? 1); r++) for (let i = 0; i < s.length; i++) {
+          const c = s[i]; if (c === '.') continue;
+          ev.push({ k: 'd', name, t: bt(o.from + (r * s.length + i) * step), v: (o.vel ?? 80) * (c === 'X' ? 1.2 : c === 'o' ? 0.45 : 1) });
+        } }
+      },
+      fx(name, t, o) { ev.push(Object.assign({ k: 'f', name, t, v: 80, dur: 0.5 }, o || {}, { vel: undefined }, { v: (o && o.vel) ?? 80 })); },
+      ticks(ts, o) { ts.forEach(t => S.fx('tick', t, o)); },
+      master(o) { Object.assign(master, o); },
+      seed() {},
+    };
+    const kitScore = { score: fn => fn(S, T) };
+    (function (kit) {
+kit.score(function (S, T) {
+  const BPM = 96, B = 60 / BPM;
+  S.tempo(BPM, { t0: T.wait - 8 * B });
+  S.program('pad', 'pad', { rev: 0.6, gain: -4 });
+  S.program('keys', 'ep', { rev: 0.3 });
+  S.program('bass', 'bass');
+  S.program('mallet', 'marimba', { pan: 0.2 });
+  S.program('bell', 'vibes', { rev: 0.5, pan: -0.2 });
+  const prog = [['F3', 'A3', 'C4', 'E4'], ['D3', 'F3', 'A3', 'C4'], ['Bb2', 'D3', 'F3', 'A3'], ['C3', 'E3', 'G3', 'Bb3']];
+  const roots = ['F2', 'D2', 'Bb1', 'C2'];
+  S.note('pad', 'F3', { t: 0, dur: 4.6, vel: 34 });
+  S.note('pad', 'C4', { t: 0, dur: 4.6, vel: 28 });
+  S.note('bell', 'A5', { t: 0, dur: 2, vel: 40 });
+  S.note('bell', 'C6', { t: 2.4, dur: 2, vel: 34 });
+  for (let i = 0; i < 8; i++) {
+    const beat = 8 + i * 4, c = prog[i % 4];
+    S.chord('keys', c, { beat, beats: 3.5, vel: i < 2 ? 40 : 50 });
+    if (i >= 1) S.note('bass', roots[i % 4], { beat, beats: 1.5, vel: 74 });
+    if (i >= 1) S.note('bass', roots[i % 4], { beat: beat + 2.5, beats: 1, vel: 60 });
+    S.pattern('mallet', 'x.x.X.x.', { from: beat, repeat: 1, pitch: [c[2].replace('3', '5').replace('4', '5'), c[3].replace('3', '5').replace('4', '6')], vel: i < 2 ? 46 : 58 });
+  }
+  S.drums({ kick: 'x...x...', sidestick: '..x...x.', hat: 'oxoxoxox' }, { from: 16, repeat: 5, vel: 70 });
+  S.drums({ kick: 'x...x...', shaker: 'oxoxoxox' }, { from: 36, repeat: 1, vel: 60 });
+  S.run('mallet', ['C5', 'D5', 'F5', 'G5', 'A5', 'C6'], { t: T.close - 0.62, step: 0.1, vel: 52, cresc: 8 });
+  S.chord('keys', ['F3', 'A3', 'C4', 'E4', 'G4'], { t: T.close, dur: 5, vel: 66 });
+  S.note('bass', 'F1', { t: T.close, dur: 4, vel: 84 });
+  S.drum('kick', { t: T.close, vel: 96 });
+  S.note('pad', 'F3', { t: T.close, dur: 5.5, vel: 40 });
+  S.note('bell', 'A5', { t: T.close + 2.4, dur: 3, vel: 44 });
+  for (let i = 0; i < 3; i++) S.fx('pop', T.open + 0.55 + 0.25 * i, { vel: 36 });
+  S.fx('whoosh', T.open + 1.3, { dur: 1.1, vel: 26 });
+  for (let i = 0; i < 3; i++) S.fx('pop', T.wait + 1.25 + 0.35 * i, { vel: 40 });
+  S.fx('whoosh', T.wait + 2.2, { dur: 0.7, vel: 24 });
+  S.fx('ding', T.wait + 3.25, { vel: 46 });
+  S.fx('roll', T.queue + 1.0, { dur: 1.6, vel: 30 });
+  S.fx('pop', T.queue + 1.05, { vel: 36 }); S.fx('pop', T.queue + 1.72, { vel: 36 });
+  S.fx('ding', T.queue + 3.05, { vel: 46 });
+  for (let i = 0; i < 3; i++) S.fx('thud', T.work + 1.35 + 0.35 * i, { vel: 40 });
+  for (let i = 0; i < 4; i++) S.fx('pop', T.work + 2.3 + 0.25 * i, { vel: 32 });
+  for (let i = 0; i < 3; i++) S.fx('pop', T.capacity + 1.3 + 0.3 * i, { vel: 38 });
+  S.fx('roll', T.capacity + 2.0, { dur: 1.0, vel: 28 });
+  for (let i = 0; i < 3; i++) S.fx('pop', T.capacity + 3.0 + 0.22 * i, { vel: 32 });
+  for (let i = 0; i < 4; i++) S.fx('pop', T.close + 0.4 + 0.22 * i, { vel: 38 });
+  S.fx('revswell', T.close, { dur: 1.0, vel: 40 });
+  S.master({ gain: -6, fadeOut: 1.5 });
+});
+    })(kitScore);
+    ev.forEach(e => { if (e.t < 0 && e.t > -0.1) e.t = 0; });
+    return { ev: ev.filter(e => e.t >= 0).sort((a, b) => a.t - b.t), prog, master };
+  })();
+
+  const Audio = (function () {
+    let ctx = null, bus = null, rev = null, noiseBuf = null;
+    function ensure() {
+      if (ctx) return ctx;
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+      ctx = new AC();
+      noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+      const nd = noiseBuf.getChannelData(0); let s = 12345;
+      for (let i = 0; i < nd.length; i++) { s = (s * 16807) % 2147483647; nd[i] = s / 1073741823.5 - 1; }
+      const len = Math.floor(ctx.sampleRate * 2.2), ir = ctx.createBuffer(2, len, ctx.sampleRate);
+      for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) { s = (s * 16807) % 2147483647; d[i] = (s / 1073741823.5 - 1) * Math.pow(1 - i / len, 3); } }
+      rev = ctx.createConvolver(); rev.buffer = ir;
+      return ctx;
+    }
+    const hz = m => 440 * Math.pow(2, (m - 69) / 12);
+    const amp = v => Math.pow(Math.max(0, Math.min(127, v)) / 127, 2);
+    function out(g, at, revAmt, pan) {
+      let node = g;
+      if (pan && ctx.createStereoPanner) { const p = ctx.createStereoPanner(); p.pan.value = pan; node.connect(p); node = p; }
+      node.connect(bus.dry);
+      if (revAmt) { const r = ctx.createGain(); r.gain.value = revAmt; node.connect(r); r.connect(bus.wet); }
+    }
+    function env(g, at, a, peak, hold, rel) {
+      g.gain.setValueAtTime(0, at); g.gain.linearRampToValueAtTime(peak, at + a);
+      if (hold > 0) g.gain.setValueAtTime(peak, at + a + hold);
+      g.gain.setTargetAtTime(0, at + a + Math.max(0, hold), rel / 4);
+    }
+    function osc(type, f, at, stop, dest, detune) { const o = ctx.createOscillator(); o.type = type; o.frequency.value = f; if (detune) o.detune.value = detune; o.connect(dest); o.start(at); o.stop(stop); return o; }
+    function noise(at, stop, dest) { const n = ctx.createBufferSource(); n.buffer = noiseBuf; n.loop = true; n.connect(dest); n.start(at, Math.random() * 0.5); n.stop(stop); return n; }
+    function filt(type, f, q) { const b = ctx.createBiquadFilter(); b.type = type; b.frequency.value = f; if (q) b.Q.value = q; return b; }
+
+    function note(e, at, p) {
+      const f = hz(e.m), a = amp(e.v) * Math.pow(10, (p.gain || 0) / 20), g = ctx.createGain(), pat = p.patch;
+      out(g, at, p.rev, p.pan);
+      if (pat === 'marimba') { env(g, at, 0.003, 0.5 * a, 0, 0.9); osc('sine', f, at, at + 1.5, g); const g2 = ctx.createGain(); g2.connect(g); env(g2, at, 0.002, 0.25, 0, 0.12); osc('sine', f * 4, at, at + 0.4, g2); }
+      else if (pat === 'vibes') { env(g, at, 0.004, 0.35 * a, 0, 2.4); osc('sine', f, at, at + 3.5, g); const g2 = ctx.createGain(); g2.gain.value = 0.12; g2.connect(g); osc('sine', f * 3, at, at + 1.2, g2); }
+      else if (pat === 'ep') { const d = Math.max(0.2, e.d); env(g, at, 0.01, 0.2 * a, d * 0.6, 0.9); osc('sine', f, at, at + d + 1.2, g); const g2 = ctx.createGain(); g2.gain.value = 0.3; g2.connect(g); osc('triangle', f * 2, at, at + d + 1.2, g2); }
+      else if (pat === 'pad') { const d = Math.max(0.5, e.d), lp = filt('lowpass', 900, 0.5); lp.connect(g); env(g, at, 0.6, 0.12 * a, d - 0.6, 1.6); osc('sawtooth', f, at, at + d + 2, lp, -7); osc('sawtooth', f, at, at + d + 2, lp, 7); }
+      else if (pat === 'bass') { const d = Math.max(0.15, e.d), lp = filt('lowpass', 600, 0.7); lp.connect(g); env(g, at, 0.01, 0.55 * a, d * 0.7, 0.3); osc('triangle', f, at, at + d + 0.6, lp); osc('sine', f, at, at + d + 0.6, lp); }
+      else { env(g, at, 0.003, 0.4 * a, 0, 0.8); osc('sine', f, at, at + 1.2, g); }
+    }
+    function drum(e, at) {
+      const a = amp(e.v), g = ctx.createGain(); out(g, at, 0.08, 0);
+      if (e.name === 'kick') { env(g, at, 0.002, 0.9 * a, 0, 0.35); const o = osc('sine', 150, at, at + 0.5, g); o.frequency.setValueAtTime(150, at); o.frequency.exponentialRampToValueAtTime(45, at + 0.25); }
+      else if (e.name === 'sidestick') { const b = filt('bandpass', 1800, 4); b.connect(g); env(g, at, 0.001, 0.5 * a, 0, 0.05); noise(at, at + 0.1, b); osc('square', 900, at, at + 0.02, g); }
+      else if (e.name === 'hat') { const b = filt('highpass', 7000); b.connect(g); env(g, at, 0.001, 0.22 * a, 0, 0.04); noise(at, at + 0.1, b); }
+      else if (e.name === 'shaker') { const b = filt('bandpass', 6000, 1.5); b.connect(g); env(g, at, 0.015, 0.2 * a, 0, 0.06); noise(at, at + 0.15, b); }
+      else { const b = filt('bandpass', 2500, 2); b.connect(g); env(g, at, 0.001, 0.3 * a, 0, 0.06); noise(at, at + 0.12, b); }
+    }
+    function fx(e, at) {
+      const a = amp(e.v), g = ctx.createGain(); out(g, at, 0.25, e.pan || 0);
+      switch (e.name) {
+        case 'pop': { env(g, at, 0.002, 0.5 * a, 0, 0.08); const o = osc('sine', 420, at, at + 0.15, g); o.frequency.exponentialRampToValueAtTime(980, at + 0.05); break; }
+        case 'thud': { env(g, at, 0.002, 0.8 * a, 0, 0.18); const o = osc('sine', 110, at, at + 0.3, g); o.frequency.exponentialRampToValueAtTime(48, at + 0.15); const b = filt('lowpass', 400); b.connect(g); noise(at, at + 0.06, b); break; }
+        case 'ding': { env(g, at, 0.003, 0.35 * a, 0, 1.2); osc('sine', 1318.5, at, at + 1.6, g); const g2 = ctx.createGain(); g2.connect(bus.dry); env(g2, at + 0.09, 0.003, 0.3 * a, 0, 1.2); osc('sine', 1975.5, at + 0.09, at + 1.7, g2); break; }
+        case 'tick': case 'click': { const b = filt('bandpass', 3000, 3); b.connect(g); env(g, at, 0.001, 0.4 * a, 0, 0.02); noise(at, at + 0.05, b); break; }
+        case 'roll': { const d = e.dur || 1, n = 14; for (let i = 0; i < n; i++) { const p = Math.sqrt(i / n), tt = at + p * d, gg = ctx.createGain(), b = filt('bandpass', 2600 + i * 60, 3); b.connect(gg); out(gg, tt, 0.1, 0); env(gg, tt, 0.001, 0.25 * a * (0.5 + i / n), 0, 0.02); noise(tt, tt + 0.04, b); } fx({ name: 'ding', v: e.v }, at + d); break; }
+        case 'whoosh': { const d = e.dur || 0.5, b = filt('bandpass', 400, 1.2); b.connect(g); b.frequency.setValueAtTime(300, at); b.frequency.exponentialRampToValueAtTime(3000, at + d); g.gain.setValueAtTime(0, at); g.gain.linearRampToValueAtTime(0.35 * a, at + d * 0.6); g.gain.linearRampToValueAtTime(0, at + d); noise(at, at + d + 0.05, b); break; }
+        case 'revswell': { const d = e.dur || 1, st = at - d, b = filt('bandpass', 800, 0.8); b.connect(g); b.frequency.setValueAtTime(400, Math.max(st, 0)); b.frequency.exponentialRampToValueAtTime(4000, at); g.gain.setValueAtTime(0, Math.max(st, 0)); g.gain.linearRampToValueAtTime(0.3 * a, at); g.gain.linearRampToValueAtTime(0, at + 0.05); noise(Math.max(st, 0), at + 0.1, b); break; }
+        default: { env(g, at, 0.003, 0.3 * a, 0, 0.3); osc('sine', 880, at, at + 0.5, g); }
+      }
+    }
+    function stop() {
+      if (!bus) return; const b = bus; bus = null;
+      try { b.master.gain.cancelScheduledValues(ctx.currentTime); b.master.gain.setTargetAtTime(0, ctx.currentTime, 0.03); } catch (e) {}
+      setTimeout(() => { try { b.master.disconnect(); } catch (e) {} }, 300);
+    }
+    function start(from) {
+      if (!ensure()) return; stop();
+      if (ctx.state === 'suspended') ctx.resume();
+      const now = ctx.currentTime + 0.05, m = SCORE.master;
+      const master = ctx.createGain(), dry = ctx.createGain(), wet = ctx.createGain(), comp = ctx.createDynamicsCompressor();
+      const lvl = Math.pow(10, (m.gain || 0) / 20);
+      master.gain.setValueAtTime(lvl, now);
+      const fs = DUR - (m.fadeOut || 0);
+      if (fs > from) { master.gain.setValueAtTime(lvl, now + fs - from); master.gain.linearRampToValueAtTime(0.0001, now + DUR - from); }
+      dry.connect(master); wet.connect(rev); const rg = ctx.createGain(); rg.gain.value = 0.5; rev.connect(rg); rg.connect(master);
+      master.connect(comp); comp.connect(ctx.destination);
+      bus = { master, dry, wet };
+      for (const e of SCORE.ev) {
+        if (e.t < from - 0.02) continue;
+        const at = now + (e.t - from);
+        if (e.k === 'n') note(e, at, SCORE.prog[e.track] || { patch: 'marimba' });
+        else if (e.k === 'd') drum(e, at);
+        else fx(e, at);
+      }
+      return now;
+    }
+    return { start, stop, ensure };
+  })();
+
+
+  const frame = document.getElementById('frame'), playBtn = document.getElementById('play'),
+    scrub = document.getElementById('scrub'), timeEl = document.getElementById('time'), chEl = document.getElementById('chapters');
+  scrub.max = DUR;
+  const fmt = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+  const chBtns = list.map(s => {
+    const li = document.createElement('li'), b = document.createElement('button');
+    b.type = 'button'; b.textContent = s.name; b.addEventListener('click', () => { seek(s.start); });
+    li.append(b); chEl.append(li); return b;
+  });
+  function fit() { stage.style.transform = 'scale(' + frame.clientWidth / 1920 + ')'; }
+  new ResizeObserver(fit).observe(frame); fit();
+
+  let t = 0, playing = false, last = 0, cur = null;
+  function draw() {
+    let s = list[list.length - 1];
+    for (const x of list) if (t < x.start + x.dur) { s = x; break; }
+    if (cur !== s) { list.forEach(x => x.box.classList.toggle('on', x === s)); cur = s; chBtns.forEach((b, i) => b.setAttribute('aria-current', list[i] === s ? 'true' : 'false')); }
+    s.def.render.call(s.def, Math.min(t - s.start, s.dur), s.kit);
+    scrub.value = t; timeEl.textContent = fmt(t) + ' / ' + fmt(DUR);
+  }
+  const ICON_PLAY = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 3l12 7-12 7z"/></svg>';
+  const ICON_PAUSE = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3h4v14H4zM12 3h4v14h-4z"/></svg>';
+  const ICON_REPLAY = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3a7 7 0 1 1-6.6 4.7l1.9.6A5 5 0 1 0 10 5v3L5.5 4 10 0z"/></svg>';
+  function setBtn() {
+    const atEnd = t >= DUR - 1e-3;
+    playBtn.innerHTML = playing ? ICON_PAUSE : atEnd ? ICON_REPLAY : ICON_PLAY;
+    playBtn.setAttribute('aria-label', playing ? 'Pause' : atEnd ? 'Replay' : 'Play');
+  }
+  function tick(now) {
+    if (!playing) return;
+    t = Math.min(DUR, t + (now - last) / 1000); last = now;
+    draw();
+    if (t >= DUR) { playing = false; setTimeout(Audio.stop, 1600); setBtn(); return; }
+    requestAnimationFrame(tick);
+  }
+  function play() { if (t >= DUR - 1e-3) t = 0; playing = true; last = performance.now(); if (soundOn) Audio.start(t); setBtn(); requestAnimationFrame(tick); }
+  function pause() { playing = false; Audio.stop(); setBtn(); }
+  function toggle() { playing ? pause() : play(); }
+  function seek(v) { t = Math.max(0, Math.min(DUR, +v)); last = performance.now(); draw(); if (playing && soundOn) { clearTimeout(seekT); Audio.stop(); seekT = setTimeout(() => { if (playing && soundOn) Audio.start(t); }, 120); } setBtn(); }
+  let soundOn = false, seekT = 0;
+  const soundBtn = document.getElementById('sound');
+  const ICON_ON = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7h3l5-4v14l-5-4H3z"/><path d="M13.5 6.5a5 5 0 0 1 0 7M15.5 4.5a8 8 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  const ICON_OFF = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7h3l5-4v14l-5-4H3z"/><path d="M13.5 7.5l5 5M18.5 7.5l-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  function setSound() { soundBtn.innerHTML = soundOn ? ICON_ON : ICON_OFF; soundBtn.setAttribute('aria-pressed', soundOn); soundBtn.setAttribute('aria-label', soundOn ? 'Turn sound off' : 'Turn sound on'); }
+  soundBtn.addEventListener('click', () => { soundOn = !soundOn; setSound(); if (soundOn) { Audio.ensure(); if (playing) Audio.start(t); } else Audio.stop(); });
+  setSound();
+  playBtn.addEventListener('click', toggle);
+  frame.addEventListener('click', toggle);
+  scrub.addEventListener('input', e => seek(e.target.value));
+  document.addEventListener('keydown', e => { if (e.code === 'Space' && (e.target === document.body || e.target === frame)) { e.preventDefault(); toggle(); } });
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const start = () => {
+    seek(0);
+    if (reduced) { seek(DUR); return; }
+    const io = new IntersectionObserver(es => { if (es[0].isIntersecting) { io.disconnect(); play(); } }, { threshold: .5 });
+    io.observe(frame);
+  };
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(start);
+})();
+</script>
+</body>
+</html>
